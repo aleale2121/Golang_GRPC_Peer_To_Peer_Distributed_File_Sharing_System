@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/aleale2121/DSP_LAB/Music_Service/constant/model"
+	"github.com/aleale2121/DSP_LAB/Music_Service/grpc/client_to_server/music_client_service"
 	protos "github.com/aleale2121/DSP_LAB/Music_Service/grpc/server/services/connect"
+	"github.com/aleale2121/DSP_LAB/Music_Service/storage/file_store"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"google.golang.org/grpc"
@@ -16,14 +18,16 @@ import (
 
 // liveClient holds the long lived gRPC client fields
 type liveClient struct {
-	client   protos.LiveConnectionClient // client is the long lived gRPC client
-	conn     *grpc.ClientConn            // conn is the client gRPC connection
-	connData model.Info
+	client      protos.LiveConnectionClient // client is the long lived gRPC client
+	conn        *grpc.ClientConn            // conn is the client gRPC connection
+	connData    model.Info
+	musicClient *music_client_service.MusicClient
 }
 
 var (
 	changeMain = 0
 	changeSub  = -1
+	songs      = make([]*protos.SongData, 0)
 )
 
 // NewLiveClient creates a new client instance
@@ -86,6 +90,7 @@ func (c *liveClient) Start() {
 			continue
 		}
 		changeMain += 1
+		songs = response.Songs
 		DisplayLiveClientsAndSons(response.Songs)
 
 		//log.Printf("Client ID %s got response: %q", c.connData.Id, len(response.Songs))
@@ -99,7 +104,7 @@ func (c *liveClient) sleep() {
 
 func DisplayLiveClientsAndSons(songs []*protos.SongData) {
 	changeSub = changeMain
-	for changeSub == changeMain {
+	if changeSub == changeMain {
 		t := table.NewWriter()
 		t.SetOutputMirror(os.Stdout)
 		t.SetColumnConfigs([]table.ColumnConfig{
@@ -159,13 +164,64 @@ func DisplayLiveClientsAndSons(songs []*protos.SongData) {
 	}
 
 }
-func Download() {
-	//reader := bufio.NewReader(os.Stdin)
-	//choice, _ := reader.ReadString('\n')
-	//fmt.Println(choice)
-	fmt.Println("download")
+func PrepareAndDownload() {
+	fmt.Println("Enter Song Title")
+	var c = ""
+	_, err := fmt.Scanln(&c)
+	if err != nil {
+		fmt.Println("Error Occurred While Processing Your Input")
+		return
+	}
+	songInfo := GetSongInfo(c)
+	if songInfo == nil {
+		fmt.Println("Invalid Song Title")
+		return
+	}
+	fmt.Println("Your Song Is Downloading U can Do Your Job")
+	go Download(songInfo, c)
+
 }
 
+func Download(data *protos.SongData, title string) {
+	transportOption := grpc.WithInsecure()
+	cc2, err := grpc.Dial(
+		"127.0.0.1:"+strconv.Itoa(int(data.Port)),
+		transportOption,
+	)
+	if err != nil {
+		log.Println("cannot dial server: ", err)
+	}
+	basePath, err := os.Getwd()
+	if err != nil {
+		log.Printf("cannot get base path: %v\n", err)
+	}
+	store, err := file_store.NewStorage(basePath)
+	if err != nil {
+		log.Printf("cannot create storage: %v\n", err)
+	}
+
+	musicClient := music_client_service.NewMusicClient(cc2, *store)
+	err = musicClient.DownloadFile(title)
+	if err != nil {
+		fmt.Println("Error Occurred while downloading music")
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("Music Downloaded")
+}
 func Send() {
 	fmt.Println("send")
+}
+
+func GetSongInfo(title string) *protos.SongData {
+	for _, s := range songs {
+
+		for _, song := range s.Songs {
+			if song == title {
+				return s
+			}
+		}
+
+	}
+	return nil
 }

@@ -54,9 +54,8 @@ func RunServer() error {
 	postgresArtist := pgArtist.NewArtistGormRepo(dbConn)
 	artistService := artist_server_service.NewGrpcArtistAServer(postgresArtist)
 
-
 	postgresSong := pgSong.NewSongGormRepo(dbConn)
-	songService := song_server_service.NewGrpcSongServer(postgresSong, postgresArtist,*store)
+	songService := song_server_service.NewGrpcSongServer(postgresSong, postgresArtist, *store)
 
 	interceptor := auth.NewAuthInterceptor()
 	serverOptions := []grpc.ServerOption{
@@ -65,7 +64,6 @@ func RunServer() error {
 	}
 
 	gs := grpc.NewServer(serverOptions...)
-
 
 	artistProto.RegisterArtistServiceServer(gs, artistService)
 	songProto.RegisterSongServiceServer(gs, songService)

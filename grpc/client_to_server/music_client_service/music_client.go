@@ -7,7 +7,6 @@ import (
 	"fmt"
 	proto "github.com/aleale2121/DSP_LAB/Music_Service/grpc/server/services/files"
 	"github.com/aleale2121/DSP_LAB/Music_Service/storage/file_store"
-	"github.com/gabriel-vasile/mimetype"
 	"google.golang.org/grpc"
 	"io"
 	"log"
@@ -19,13 +18,12 @@ import (
 type MusicClient struct {
 	service proto.SongsServiceClient
 	store   file_store.Storage
-
 }
 
-func NewMusicClient(rc *grpc.ClientConn,store file_store.Storage) *MusicClient {
+func NewMusicClient(rc *grpc.ClientConn, store file_store.Storage) *MusicClient {
 	return &MusicClient{
 		service: proto.NewSongsServiceClient(rc),
-		store: store,
+		store:   store,
 	}
 }
 
@@ -90,7 +88,7 @@ func (client *MusicClient) DownloadFile(fileId string) error {
 	req := &proto.DownloadSongRequest{
 		SongId: fileId,
 	}
-	stream,err:=client.service.DownloadSong(ctx,req)
+	stream, err := client.service.DownloadSong(ctx, req)
 	if err != nil {
 		log.Fatal("cannot download image: ", err)
 	}
@@ -109,7 +107,6 @@ func (client *MusicClient) DownloadFile(fileId string) error {
 		log.Printf("Response from GreetManyTimes: %v ", msg.ChunkData)
 		chunk := msg.GetChunkData()
 
-
 		_, err = buffer.Write(chunk)
 		if err != nil {
 			log.Fatalf("couldn't write chunk data: %v", err)
@@ -118,7 +115,7 @@ func (client *MusicClient) DownloadFile(fileId string) error {
 
 	err = client.saveFile(fileId, "audio", buffer)
 	if err != nil {
-		return  fmt.Errorf("cannot write song cover to file: %w", err)
+		return fmt.Errorf("cannot write song cover to file: %w", err)
 	}
 
 	return nil
@@ -126,7 +123,7 @@ func (client *MusicClient) DownloadFile(fileId string) error {
 
 func (client *MusicClient) saveFile(id, path string, buffer bytes.Buffer) error {
 
-	fp := filepath.Join("assets","audio",path, id)
+	fp := filepath.Join("assets", "audio", path, id)
 	err := client.store.SaveChunk(fp, buffer)
 	if err != nil {
 		return err
