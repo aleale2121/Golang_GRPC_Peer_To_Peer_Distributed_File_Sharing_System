@@ -14,6 +14,10 @@ github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
 github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
+# github.com/jedib0t/go-pretty/v6 v6.2.2
+## explicit
+github.com/jedib0t/go-pretty/v6/table
+github.com/jedib0t/go-pretty/v6/text
 # github.com/jinzhu/gorm v1.9.16
 ## explicit
 github.com/jinzhu/gorm
@@ -33,6 +37,8 @@ github.com/julienschmidt/httprouter
 github.com/lib/pq
 github.com/lib/pq/oid
 github.com/lib/pq/scram
+# github.com/mattn/go-runewidth v0.0.9
+github.com/mattn/go-runewidth
 # github.com/satori/go.uuid v1.2.0
 ## explicit
 github.com/satori/go.uuid
@@ -55,6 +61,7 @@ golang.org/x/net/trace
 # golang.org/x/sys v0.0.0-20210423082822-04245dca01da
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
+golang.org/x/sys/windows
 # golang.org/x/text v0.3.6
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
