@@ -6,30 +6,31 @@ import (
 	"github.com/aleale2121/DSP_LAB/Music_Service/constant/model"
 	protos "github.com/aleale2121/DSP_LAB/Music_Service/grpc/server/services/connect"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"google.golang.org/grpc"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
 // liveClient holds the long lived gRPC client fields
 type liveClient struct {
 	client   protos.LiveConnectionClient // client is the long lived gRPC client
-	conn     *grpc.ClientConn       // conn is the client gRPC connection
+	conn     *grpc.ClientConn            // conn is the client gRPC connection
 	connData model.Info
 }
 
 // NewLiveClient creates a new client instance
 func NewLiveClient(
-	client   protos.LiveConnectionClient ,// client is the long lived gRPC client
-	conn     *grpc.ClientConn ,      // conn is the client gRPC connection
+	client protos.LiveConnectionClient, // client is the long lived gRPC client
+	conn *grpc.ClientConn, // conn is the client gRPC connection
 	connData model.Info) (*liveClient, error) {
 
-
 	return &liveClient{
-		client: client,
-		conn:   conn,
-		connData:connData,
+		client:   client,
+		conn:     conn,
+		connData: connData,
 	}, nil
 }
 
@@ -45,7 +46,7 @@ func (c *liveClient) subscribe() (protos.LiveConnection_SubscribeClient, error) 
 	log.Printf("Subscribing client ID: %s", c.connData.Id)
 	return c.client.Subscribe(context.Background(), &protos.ConnectRequest{ConnectionData: &protos.SongData{
 		Id:    c.connData.Id,
-		Port: int32(c.connData.Port),
+		Port:  int32(c.connData.Port),
 		Songs: c.connData.Files,
 	}})
 }
@@ -91,29 +92,70 @@ func (c *liveClient) sleep() {
 	time.Sleep(time.Second * 5)
 }
 
-func DisplayLiveClientsAndSons(songs []*protos.SongData)  {
+func DisplayLiveClientsAndSons(songs []*protos.SongData) {
 
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
+	t.SetColumnConfigs([]table.ColumnConfig{
+		{
+			Name:         "Online Clients",
+			Align:        text.AlignLeft,
+			AlignFooter:  text.AlignLeft,
+			AlignHeader:  text.AlignLeft,
+			Colors:       text.Colors{text.BgBlack, text.FgRed},
+			ColorsHeader: text.Colors{text.BgRed, text.FgBlack, text.Bold},
+			ColorsFooter: text.Colors{text.BgRed, text.FgBlack},
+			Hidden:       false,
+			VAlign:       text.VAlignMiddle,
+			VAlignFooter: text.VAlignTop,
+			VAlignHeader: text.VAlignBottom,
+			WidthMin:     20,
+			WidthMax:     64,
+		},
+	})
 
 	//fmt.Println("Online Clients")
-	t.AppendHeader(table.Row{"Online Clients","",""})
-	t.AppendHeader(table.Row{ "CLIENT-ID", "IP", "MUSICS"})
+	t.AppendHeader(table.Row{"CLIENT-ID", "IP", "MUSICS"})
 	for _, s := range songs {
-		fmt.Printf("Songs For Client %s AND IP:%d\n",s.Id,s.Port)
-		fmt.Println("-------------------------------------------")
-		songText:=""
+
+		songText := ""
 		for _, song := range s.Songs {
-			fmt.Println(song)
-			songText+=song+"\n"
+			songText += song + "\n"
 		}
-		t.AppendRow([]interface{}{ s.Id, "127.0.0.1"+string(s.Port), songText})
+		songText += ""
+		ip := "127.0.0.1:" + strconv.Itoa(int(s.Port))
+		t.AppendRow([]interface{}{s.Id, ip, songText})
 		t.AppendSeparator()
 	}
-	t.SetStyle(table.StyleColoredBright)
+	//t.SetStyle(table.StyleColoredBright)
+	t.SetAllowedRowLength(100)
 	t.Render()
+	fmt.Println("Enter")
+	fmt.Println("1--------To Download Music")
+	fmt.Println("2--------To Send Music")
+	fmt.Println("3--------To Continue")
 
+	var choice = ""
+	_, _ = fmt.Scanln(&choice)
+	if choice == "1" {
+		fmt.Println("1")
+		//Download()
+	} else if choice == "2" {
+		fmt.Println("2")
+		//Send()
+	} else {
+		fmt.Println("default")
+
+	}
 
 }
+func Download() {
+	//reader := bufio.NewReader(os.Stdin)
+	//choice, _ := reader.ReadString('\n')
+	//fmt.Println(choice)
+	fmt.Println("download")
+}
 
-
+func Send() {
+	fmt.Println("send")
+}
