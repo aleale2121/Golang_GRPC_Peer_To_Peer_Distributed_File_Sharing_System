@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/aleale2121/DSP_LAB/Music_Service/constant/model"
 	protos "github.com/aleale2121/DSP_LAB/Music_Service/grpc/server/services/connect"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"google.golang.org/grpc"
 	"log"
+	"os"
 	"time"
 )
 
@@ -90,15 +92,28 @@ func (c *liveClient) sleep() {
 }
 
 func DisplayLiveClientsAndSons(songs []*protos.SongData)  {
-	fmt.Println("Online Clients")
-	fmt.Println("-------------------------------------")
+
+	t := table.NewWriter()
+	t.SetOutputMirror(os.Stdout)
+
+	//fmt.Println("Online Clients")
+	t.AppendHeader(table.Row{"Online Clients","",""})
+	t.AppendHeader(table.Row{ "CLIENT-ID", "IP", "MUSICS"})
 	for _, s := range songs {
 		fmt.Printf("Songs For Client %s AND IP:%d\n",s.Id,s.Port)
 		fmt.Println("-------------------------------------------")
+		songText:=""
 		for _, song := range s.Songs {
 			fmt.Println(song)
+			songText+=song+"\n"
 		}
+		t.AppendRow([]interface{}{ s.Id, "127.0.0.1"+string(s.Port), songText})
+		t.AppendSeparator()
 	}
+	t.SetStyle(table.StyleColoredBright)
+	t.Render()
+
+
 }
 
 

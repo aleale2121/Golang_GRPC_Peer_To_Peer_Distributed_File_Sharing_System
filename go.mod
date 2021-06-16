@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/gabriel-vasile/mimetype v1.3.0
 	github.com/golang/protobuf v1.5.2
+	github.com/jedib0t/go-pretty/v6 v6.2.2 // indirect
 	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.3.0
 	github.com/julienschmidt/httprouter v1.3.0
