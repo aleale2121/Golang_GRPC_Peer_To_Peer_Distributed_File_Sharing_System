@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"os"
+	"path"
 	"strconv"
 	"time"
 )
@@ -150,11 +151,11 @@ func DisplayLiveClientsAndSons(songs []*protos.SongData) {
 		var choice = ""
 		_, _ = fmt.Scanln(&choice)
 		if choice == "1" {
-			fmt.Println("-------------1")
-			//Download()
+			fmt.Println("-------------download---")
+			PrepareAndDownload()
 		} else if choice == "2" {
 			fmt.Println("------------2")
-			//Send()
+			PrepareAndUpload()
 		} else {
 			fmt.Println("-------------default")
 
@@ -172,13 +173,39 @@ func PrepareAndDownload() {
 		fmt.Println("Error Occurred While Processing Your Input")
 		return
 	}
-	songInfo := GetSongInfo(c)
+	songInfo := GetSongInfoByTitle(c)
 	if songInfo == nil {
 		fmt.Println("Invalid Song Title")
 		return
 	}
 	fmt.Println("Your Song Is Downloading U can Do Your Job")
 	go Download(songInfo, c)
+
+}
+func PrepareAndUpload() {
+	fmt.Println("Enter Song Title")
+	var title = ""
+	_, err := fmt.Scanln(&title)
+	if err != nil {
+		fmt.Println("Error Occurred While Processing Your Input")
+		return
+	}
+	fmt.Println("Enter Client  Ip")
+	var ip = ""
+	_, err = fmt.Scanln(&ip)
+	if err != nil {
+		fmt.Println("Error Occurred While Processing Your Input")
+		return
+	}
+	fmt.Println(ip)
+	songInfo := GetSongInfoByIp(ip)
+	if songInfo == nil {
+		fmt.Println("Invalid Ip")
+		return
+	}
+	fmt.Println("Your Song Is Uploading U can Do Your Job")
+	pathX := path.Join("assets", "audio", title)
+	go Send(songInfo, pathX)
 
 }
 
@@ -209,17 +236,51 @@ func Download(data *protos.SongData, title string) {
 	}
 	fmt.Println("Music Downloaded")
 }
-func Send() {
-	fmt.Println("send")
+func Send(data *protos.SongData, title string) {
+	transportOption := grpc.WithInsecure()
+	cc2, err := grpc.Dial(
+		"127.0.0.1:"+strconv.Itoa(int(data.Port)),
+		transportOption,
+	)
+	if err != nil {
+		log.Println("cannot dial server: ", err)
+	}
+	basePath, err := os.Getwd()
+	if err != nil {
+		log.Printf("cannot get base path: %v\n", err)
+	}
+	store, err := file_store.NewStorage(basePath)
+	if err != nil {
+		log.Printf("cannot create storage: %v\n", err)
+	}
+
+	musicClient := music_client_service.NewMusicClient(cc2, *store)
+	_, err = musicClient.UploadSong(title)
+	if err != nil {
+		fmt.Println("Error Occurred while downloading music")
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("Music Uploaded")
 }
 
-func GetSongInfo(title string) *protos.SongData {
+func GetSongInfoByTitle(title string) *protos.SongData {
 	for _, s := range songs {
 
 		for _, song := range s.Songs {
 			if song == title {
 				return s
 			}
+		}
+
+	}
+	return nil
+}
+func GetSongInfoByIp(ip string) *protos.SongData {
+	for _, s := range songs {
+
+		if ip == "127.0.0.1:"+strconv.Itoa(int(s.Port)) {
+			return s
 		}
 
 	}

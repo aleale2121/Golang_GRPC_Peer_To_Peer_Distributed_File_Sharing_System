@@ -11,7 +11,7 @@ import (
 
 func TestCreateSong(client *song_client_service.SongClient) {
 	base, _ := os.Getwd()
-	audio := base + "\\sample\\audio\\3.ogg"
+	audio := base + "\\sample\\audio\\1.ogg"
 	image := base + "\\sample\\image\\1.png"
 
 	resp, err := client.CreateSong(&protos.SongCreateInfo{

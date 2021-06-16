@@ -104,7 +104,6 @@ func (client *MusicClient) DownloadFile(fileId string) error {
 		if err != nil {
 			log.Fatalf("error while reciving chunk %v", err)
 		}
-		log.Printf("Response from GreetManyTimes: %v ", msg.ChunkData)
 		chunk := msg.GetChunkData()
 
 		_, err = buffer.Write(chunk)

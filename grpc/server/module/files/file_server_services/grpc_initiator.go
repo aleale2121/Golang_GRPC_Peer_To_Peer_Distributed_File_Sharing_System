@@ -6,7 +6,6 @@ import (
 	"fmt"
 	proto "github.com/aleale2121/DSP_LAB/Music_Service/grpc/server/services/files"
 	"github.com/aleale2121/DSP_LAB/Music_Service/storage/file_store"
-	"github.com/gabriel-vasile/mimetype"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"io"
@@ -16,12 +15,12 @@ import (
 )
 
 var (
-	songs=make([]Info,0)
+	songs = make([]Info, 0)
 )
 
 type Info struct {
-	id string
-	port int
+	id    string
+	port  int
 	songs []string
 }
 type grpcFileServiceServer struct {
@@ -30,10 +29,10 @@ type grpcFileServiceServer struct {
 }
 
 func (s grpcFileServiceServer) Connect(ctx context.Context, request *proto.ConnectRequest) (*proto.ConnectResponse, error) {
-	songs= append(songs, *ConvertProtoToSong(request.Info))
-	return &proto.ConnectResponse{},nil
+	songs = append(songs, *ConvertProtoToSong(request.Info))
+	return &proto.ConnectResponse{}, nil
 }
-func NewGrpcFileServer(store  file_store.Storage, ) proto.SongsServiceServer {
+func NewGrpcFileServer(store file_store.Storage) proto.SongsServiceServer {
 	return &grpcFileServiceServer{
 		store: store,
 	}
@@ -47,7 +46,7 @@ func (s grpcFileServiceServer) UploadSong(stream proto.SongsService_UploadSongSe
 	title := req.GetTitle()
 
 	if title == "" {
-		return  status.Errorf(codes.InvalidArgument, "Song Title Cannot Be Empty")
+		return status.Errorf(codes.InvalidArgument, "Song Title Cannot Be Empty")
 	}
 	buffer := bytes.Buffer{}
 	for {
@@ -72,20 +71,20 @@ func (s grpcFileServiceServer) UploadSong(stream proto.SongsService_UploadSongSe
 		}
 
 	}
-	mime := mimetype.Detect(buffer.Bytes())
+	//mime := mimetype.Detect(buffer.Bytes())
 	//if !mimetype.EqualsAny(mime.String(),"image/jpeg","image/pjpeg",
 	//	"image/png", "image/tiff","image/x-tiff","image/vnd.wap.wbmp"){
 	//	return status.Errorf(codes.InvalidArgument, "the cover image you upload is not image")
 	//}
 
-	songId := title+mime.Extension()
+	songId := title
 	err = s.saveFile(songId, "audio", buffer)
 	if err != nil {
-		return  fmt.Errorf("cannot write song cover to file: %w", err)
+		return fmt.Errorf("cannot write song cover to file: %w", err)
 	}
 
 	res := &proto.UploadSongResponse{
-		Id:   title,
+		Id: title,
 	}
 
 	err = stream.SendAndClose(res)
@@ -97,7 +96,7 @@ func (s grpcFileServiceServer) UploadSong(stream proto.SongsService_UploadSongSe
 }
 
 func (s grpcFileServiceServer) GetSongsList(ctx context.Context, request *proto.GetSongsRequest) (*proto.GetSongsResponse, error) {
-	songsInfo:=make([]*proto.SongData,0)
+	songsInfo := make([]*proto.SongData, 0)
 	for _, sg := range songs {
 		songsInfo = append(songsInfo, ConvertToProtoSong(&sg))
 	}
@@ -105,8 +104,8 @@ func (s grpcFileServiceServer) GetSongsList(ctx context.Context, request *proto.
 }
 
 func (s grpcFileServiceServer) DownloadSong(request *proto.DownloadSongRequest, server proto.SongsService_DownloadSongServer) error {
-	wd,_:=os.Getwd()
-	fp := filepath.Join(wd,"assets","audio", request.SongId)
+	wd, _ := os.Getwd()
+	fp := filepath.Join(wd, "assets", "audio", request.SongId)
 
 	file, err := os.Open(fp)
 	if err != nil {
@@ -115,6 +114,7 @@ func (s grpcFileServiceServer) DownloadSong(request *proto.DownloadSongRequest, 
 	defer file.Close()
 
 	buff := make([]byte, 1024)
+
 	for {
 		bytesRead, err := file.Read(buff)
 		if err != nil {
@@ -135,7 +135,6 @@ func (s grpcFileServiceServer) DownloadSong(request *proto.DownloadSongRequest, 
 	return nil
 }
 
-
 func ConvertProtoToSong(song *proto.SongData) *Info {
 	return &Info{
 		id:    song.Id,
@@ -146,8 +145,8 @@ func ConvertProtoToSong(song *proto.SongData) *Info {
 
 func ConvertToProtoSong(song *Info) *proto.SongData {
 	return &proto.SongData{
-		Id:   song.id,
-		Port: int32(song.port),
+		Id:    song.id,
+		Port:  int32(song.port),
 		Songs: song.songs,
 	}
 }
@@ -170,7 +169,7 @@ func logError(err error) error {
 }
 
 func (s *grpcFileServiceServer) saveFile(id, path string, buffer bytes.Buffer) error {
-	fp := filepath.Join("assets", path,id)
+	fp := filepath.Join("assets", path, id)
 	err := s.store.SaveChunk(fp, buffer)
 	if err != nil {
 		return err
