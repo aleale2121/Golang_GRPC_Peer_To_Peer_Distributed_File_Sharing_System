@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -41,11 +42,13 @@ func (client *MusicClient) UploadSong(musicPath string) (string, error) {
 	if err != nil {
 		log.Fatal("cannot open song: ", err)
 	}
+	pathSplitted := strings.Split(songAudio.Name(), "/")
+	fmt.Println("audio name --")
 	defer songAudio.Close()
 
 	req := &proto.UploadSongRequest{
 		Data: &proto.UploadSongRequest_Title{
-			Title: songAudio.Name()},
+			Title: pathSplitted[len(pathSplitted)-1]},
 	}
 
 	err = stream.Send(req)
