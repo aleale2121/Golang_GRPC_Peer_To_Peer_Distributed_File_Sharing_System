@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+package song;
+
+option go_package = ".;song";
+
+import "google/protobuf/timestamp.proto";
+
+service SongService{
+  rpc CreateSong(stream CreateSongRequest) returns (CreateSongResponse);
+  rpc UpdateSongUrl(stream UpdateSongUrlRequest) returns (UpdateSongUrlResponse);
+  rpc GetSong(GetSongRequest) returns (GetSongResponse);
+  rpc GetAllSongs(GetSongsRequest) returns (GetSongsResponse);
+  rpc GetArtistSongs(GetArtistSongsRequest) returns (GetSongsResponse);
+  rpc UpdateSong(UpdateSongRequest) returns (UpdateSongResponse);
+  rpc DeleteSong(DeleteSongRequest) returns (DeleteSongResponse);
+  rpc LikeSong(LikeSongRequest) returns (LikeSongResponse);
+  rpc GetSongLikesCount(GetLikesCountRequest) returns (GetLikesCountResponse);
+  rpc GetSongViewCount(GetViewsCountRequest) returns (GetViewsCountResponse);
+  rpc IncreaseSongViewCount(IncreaseSongViewRequest) returns (IncreaseSongViewResponse);
+  rpc DownloadFile(DownloadFileRequest) returns (stream DownloadFileResponse);
+}
+
+message Artist {
+  string ID = 1;
+  string FirstName = 2;
+  string LastName = 3;
+  google.protobuf.Timestamp CreatedAt = 4;
+  google.protobuf.Timestamp UpdatedAt = 5;
+}
+
+message Song{
+  string ID = 1;
+  string ArtistId = 2;
+  Artist Artist = 3;
+  string Title=4;
+  string CoverImageUrl=5;
+  string SongUrl=6;
+  int64 Views=7;
+  int64 Duration=8;
+  google.protobuf.Timestamp ReleasedAt = 9;
+  google.protobuf.Timestamp CreatedAt = 10;
+  google.protobuf.Timestamp UpdatedAt = 11;
+}
+message DownloadFileRequest{
+  string FileId=1;
+}
+message DownloadFileResponse{
+  bytes chunk_data = 1;
+}
+ message SongCreateInfo{
+   string ArtistId = 1;
+   string Title=2;
+   int64 Duration=3;
+}
+
+message CreateSongRequest{
+  oneof data {
+    SongCreateInfo songInfo = 1;
+    bytes song_cover_Image_chunk_data = 2;
+  };
+}
+message CreateSongResponse{
+  string id = 1;
+}
+
+message UpdateSongUrlRequest{
+   oneof data{
+     string song_id=1;
+     bytes song_chunk_data = 2;
+   }
+}
+message UpdateSongUrlResponse{}
+
+message GetSongRequest{
+  string song_id = 1;
+
+}
+message GetSongResponse{
+  Song song = 1;
+}
+message GetSongsRequest{
+  int64 Page=1;
+  int64 maxPerPage=2;
+  string sort=3;
+  string sortKey=4;
+}
+message GetSongsResponse{
+  PaginatedSongData songs=1;
+}
+message UpdateSongRequest{
+  Song song = 1;
+}
+message UpdateSongResponse{}
+
+message DeleteSongRequest{
+  string id = 1;
+}
+message DeleteSongResponse{}
+
+message GetArtistSongsRequest{
+  string artistId=1;
+  int64 Page=2;
+  int64 maxPerPage=3;
+  string sort=4;
+  string sortKey=5;
+}
+message LikeSongRequest{
+  string user_id = 1;
+  string song_id = 2;
+}
+message LikeSongResponse{
+  bool is_liked=1;
+}
+message GetViewsCountRequest{
+  string song_id = 1;
+}
+message GetViewsCountResponse{
+  int64 count=1;
+}
+message IncreaseSongViewRequest{
+  string song_id = 1;
+}
+message IncreaseSongViewResponse{}
+message GetLikesCountRequest{
+  string song_id = 1;
+}
+message GetLikesCountResponse{
+  int64 count=1;
+}
+message PaginatedSongData{
+  SongMetaData MetaData=1;
+  repeated Song Data=2;
+}
+message SongMetaData  {
+  int64  Page  =1;
+  int64  PerPage =2;
+  int64       PageCount=3;
+  int64    TotalCount=4;
+  repeated  SongLink Links =5;
+}
+message SongLink{
+  string key = 1;
+  string value = 2;
+}
+
+
+
+

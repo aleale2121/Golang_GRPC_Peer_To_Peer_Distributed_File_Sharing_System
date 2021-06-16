@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package files;
+
+option go_package = ".;files";
+
+
+service SongsService{
+  rpc Connect(ConnectRequest)returns (ConnectResponse);
+  rpc UploadSong(stream UploadSongRequest) returns (UploadSongResponse);
+  rpc GetSongsList(GetSongsRequest) returns (GetSongsResponse);
+  rpc DownloadSong(DownloadSongRequest) returns (stream DownloadSongResponse);
+}
+
+message DownloadSongRequest{
+  string SongId=1;
+}
+message DownloadSongResponse{
+  bytes chunk_data = 1;
+}
+message UploadSongRequest{
+  oneof data {
+    bytes chunk_data = 1;
+    string title=2;
+  }
+}
+message UploadSongResponse{
+  string id = 1;
+}
+message GetSongsRequest{}
+
+message GetSongsResponse{
+  repeated SongData  songs=1;
+}
+message ConnectRequest{
+  SongData Info=1;
+}
+message ConnectResponse{
+
+}
+message SongData{
+   string id = 1;
+   int32 port=2;
+   repeated string songs=3;
+}
+
+
+
