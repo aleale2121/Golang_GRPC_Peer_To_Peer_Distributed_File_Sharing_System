@@ -21,6 +21,11 @@ type liveClient struct {
 	connData model.Info
 }
 
+var (
+	changeMain = 0
+	changeSub  = -1
+)
+
 // NewLiveClient creates a new client instance
 func NewLiveClient(
 	client protos.LiveConnectionClient, // client is the long lived gRPC client
@@ -80,7 +85,7 @@ func (c *liveClient) Start() {
 			// Retry on failure
 			continue
 		}
-
+		changeMain += 1
 		DisplayLiveClientsAndSons(response.Songs)
 
 		//log.Printf("Client ID %s got response: %q", c.connData.Id, len(response.Songs))
@@ -93,59 +98,64 @@ func (c *liveClient) sleep() {
 }
 
 func DisplayLiveClientsAndSons(songs []*protos.SongData) {
+	changeSub = changeMain
+	for changeSub == changeMain {
+		t := table.NewWriter()
+		t.SetOutputMirror(os.Stdout)
+		t.SetColumnConfigs([]table.ColumnConfig{
+			{
+				Name:         "Online Clients",
+				Align:        text.AlignLeft,
+				AlignFooter:  text.AlignLeft,
+				AlignHeader:  text.AlignLeft,
+				Colors:       text.Colors{text.BgBlack, text.FgRed},
+				ColorsHeader: text.Colors{text.BgRed, text.FgBlack, text.Bold},
+				ColorsFooter: text.Colors{text.BgRed, text.FgBlack},
+				Hidden:       false,
+				VAlign:       text.VAlignMiddle,
+				VAlignFooter: text.VAlignTop,
+				VAlignHeader: text.VAlignBottom,
+				WidthMin:     20,
+				WidthMax:     64,
+			},
+		})
 
-	t := table.NewWriter()
-	t.SetOutputMirror(os.Stdout)
-	t.SetColumnConfigs([]table.ColumnConfig{
-		{
-			Name:         "Online Clients",
-			Align:        text.AlignLeft,
-			AlignFooter:  text.AlignLeft,
-			AlignHeader:  text.AlignLeft,
-			Colors:       text.Colors{text.BgBlack, text.FgRed},
-			ColorsHeader: text.Colors{text.BgRed, text.FgBlack, text.Bold},
-			ColorsFooter: text.Colors{text.BgRed, text.FgBlack},
-			Hidden:       false,
-			VAlign:       text.VAlignMiddle,
-			VAlignFooter: text.VAlignTop,
-			VAlignHeader: text.VAlignBottom,
-			WidthMin:     20,
-			WidthMax:     64,
-		},
-	})
+		//fmt.Println("Online Clients")
+		t.AppendHeader(table.Row{"CLIENT-ID", "IP", "MUSICS"})
+		for _, s := range songs {
 
-	//fmt.Println("Online Clients")
-	t.AppendHeader(table.Row{"CLIENT-ID", "IP", "MUSICS"})
-	for _, s := range songs {
-
-		songText := ""
-		for _, song := range s.Songs {
-			songText += song + "\n"
+			songText := ""
+			for _, song := range s.Songs {
+				songText += song + "\n"
+			}
+			songText += ""
+			ip := "127.0.0.1:" + strconv.Itoa(int(s.Port))
+			t.AppendRow([]interface{}{s.Id, ip, songText})
+			t.AppendSeparator()
 		}
-		songText += ""
-		ip := "127.0.0.1:" + strconv.Itoa(int(s.Port))
-		t.AppendRow([]interface{}{s.Id, ip, songText})
-		t.AppendSeparator()
-	}
-	//t.SetStyle(table.StyleColoredBright)
-	t.SetAllowedRowLength(100)
-	t.Render()
-	fmt.Println("Enter")
-	fmt.Println("1--------To Download Music")
-	fmt.Println("2--------To Send Music")
-	fmt.Println("3--------To Continue")
+		//t.SetStyle(table.StyleColoredBright)
+		t.SetAllowedRowLength(100)
+		t.Render()
 
-	var choice = ""
-	_, _ = fmt.Scanln(&choice)
-	if choice == "1" {
-		fmt.Println("1")
-		//Download()
-	} else if choice == "2" {
-		fmt.Println("2")
-		//Send()
-	} else {
-		fmt.Println("default")
+		fmt.Println("Enter")
+		fmt.Println("1--------To Download Music")
+		fmt.Println("2--------To Send Music")
+		fmt.Println("3--------To Continue")
 
+		var choice = ""
+		_, _ = fmt.Scanln(&choice)
+		if choice == "1" {
+			fmt.Println("-------------1")
+			//Download()
+		} else if choice == "2" {
+			fmt.Println("------------2")
+			//Send()
+		} else {
+			fmt.Println("-------------default")
+
+		}
+
+		fmt.Printf("old:%d--------new:%d\n", changeMain, changeSub)
 	}
 
 }
