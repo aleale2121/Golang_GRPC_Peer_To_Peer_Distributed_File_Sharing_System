@@ -82,7 +82,7 @@ func (c *liveClient) Start() {
 
 		DisplayLiveClientsAndSons(response.Songs)
 
-		log.Printf("Client ID %s got response: %q", c.connData.Id, len(response.Songs))
+		//log.Printf("Client ID %s got response: %q", c.connData.Id, len(response.Songs))
 	}
 }
 
