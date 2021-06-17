@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.25.0-devel
 // 	protoc        v3.12.3
-// source: files.proto
+// source: music.proto
 
 package files
 
@@ -542,27 +542,27 @@ func file_files_proto_rawDescGZIP() []byte {
 
 var file_files_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_files_proto_goTypes = []interface{}{
-	(*DownloadSongRequest)(nil),  // 0: files.DownloadSongRequest
-	(*DownloadSongResponse)(nil), // 1: files.DownloadSongResponse
-	(*UploadSongRequest)(nil),    // 2: files.UploadSongRequest
-	(*UploadSongResponse)(nil),   // 3: files.UploadSongResponse
-	(*GetSongsRequest)(nil),      // 4: files.GetSongsRequest
-	(*GetSongsResponse)(nil),     // 5: files.GetSongsResponse
-	(*ConnectRequest)(nil),       // 6: files.ConnectRequest
-	(*ConnectResponse)(nil),      // 7: files.ConnectResponse
-	(*SongData)(nil),             // 8: files.SongData
+	(*DownloadSongRequest)(nil),  // 0: music.DownloadSongRequest
+	(*DownloadSongResponse)(nil), // 1: music.DownloadSongResponse
+	(*UploadSongRequest)(nil),    // 2: music.UploadSongRequest
+	(*UploadSongResponse)(nil),   // 3: music.UploadSongResponse
+	(*GetSongsRequest)(nil),      // 4: music.GetSongsRequest
+	(*GetSongsResponse)(nil),     // 5: music.GetSongsResponse
+	(*ConnectRequest)(nil),       // 6: music.ConnectRequest
+	(*ConnectResponse)(nil),      // 7: music.ConnectResponse
+	(*SongData)(nil),             // 8: music.SongData
 }
 var file_files_proto_depIdxs = []int32{
-	8, // 0: files.GetSongsResponse.songs:type_name -> files.SongData
-	8, // 1: files.ConnectRequest.Info:type_name -> files.SongData
-	6, // 2: files.SongsService.Connect:input_type -> files.ConnectRequest
-	2, // 3: files.SongsService.UploadSong:input_type -> files.UploadSongRequest
-	4, // 4: files.SongsService.GetSongsList:input_type -> files.GetSongsRequest
-	0, // 5: files.SongsService.DownloadSong:input_type -> files.DownloadSongRequest
-	7, // 6: files.SongsService.Connect:output_type -> files.ConnectResponse
-	3, // 7: files.SongsService.UploadSong:output_type -> files.UploadSongResponse
-	5, // 8: files.SongsService.GetSongsList:output_type -> files.GetSongsResponse
-	1, // 9: files.SongsService.DownloadSong:output_type -> files.DownloadSongResponse
+	8, // 0: music.GetSongsResponse.songs:type_name -> music.SongData
+	8, // 1: music.ConnectRequest.Info:type_name -> music.SongData
+	6, // 2: music.SongsService.Connect:input_type -> music.ConnectRequest
+	2, // 3: music.SongsService.UploadMusic:input_type -> music.UploadSongRequest
+	4, // 4: music.SongsService.GetSongsList:input_type -> music.GetSongsRequest
+	0, // 5: music.SongsService.DownloadSong:input_type -> music.DownloadSongRequest
+	7, // 6: music.SongsService.Connect:output_type -> music.ConnectResponse
+	3, // 7: music.SongsService.UploadMusic:output_type -> music.UploadSongResponse
+	5, // 8: music.SongsService.GetSongsList:output_type -> music.GetSongsResponse
+	1, // 9: music.SongsService.DownloadSong:output_type -> music.DownloadSongResponse
 	6, // [6:10] is the sub-list for method output_type
 	2, // [2:6] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

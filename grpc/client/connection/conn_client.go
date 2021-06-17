@@ -17,10 +17,9 @@ import (
 	"time"
 )
 
-// liveClient holds the long lived gRPC client fields
 type liveClient struct {
-	client      protos.LiveConnectionClient // client is the long lived gRPC client
-	conn        *grpc.ClientConn            // conn is the client gRPC connection
+	client      protos.LiveConnectionClient
+	conn        *grpc.ClientConn
 	connData    model.Info
 	musicClient *music.MusicClient
 }
@@ -33,7 +32,7 @@ var (
 
 // NewLiveClient creates a new client instance
 func NewLiveClient(
-	client protos.LiveConnectionClient, // client is the long lived gRPC client
+	client protos.LiveConnectionClient, // client is the live gRPC client
 	conn *grpc.ClientConn, // conn is the client gRPC connection
 	connData model.Info) (*liveClient, error) {
 
@@ -42,13 +41,6 @@ func NewLiveClient(
 		conn:     conn,
 		connData: connData,
 	}, nil
-}
-
-// close is not used but is here as an example of how to close the gRPC client connection
-func (c *liveClient) close() {
-	if err := c.conn.Close(); err != nil {
-		log.Fatal(err)
-	}
 }
 
 // subscribe subscribes to messages from the gRPC server
@@ -228,7 +220,7 @@ func Download(data *protos.SongData, title string) {
 	}
 
 	musicClient := music.NewMusicClient(cc2, *store)
-	err = musicClient.DownloadFile(title)
+	err = musicClient.DownloadMusic(title)
 	if err != nil {
 		fmt.Println("Error Occurred while downloading music")
 		fmt.Println(err)
@@ -255,7 +247,7 @@ func Send(data *protos.SongData, title string) {
 	}
 
 	musicClient := music.NewMusicClient(cc2, *store)
-	_, err = musicClient.UploadSong(title)
+	_, err = musicClient.UploadMusic(title)
 	if err != nil {
 		fmt.Println("Error Occurred while downloading music")
 		fmt.Println(err)
@@ -285,4 +277,10 @@ func GetSongInfoByIp(ip string) *protos.SongData {
 
 	}
 	return nil
+}
+
+func (c *liveClient) close() {
+	if err := c.conn.Close(); err != nil {
+		log.Fatal(err)
+	}
 }

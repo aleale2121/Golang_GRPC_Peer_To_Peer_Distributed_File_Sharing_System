@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package files;
 
-option go_package = ".;files";
+option go_package = ".;music";
 
 
 service SongsService{

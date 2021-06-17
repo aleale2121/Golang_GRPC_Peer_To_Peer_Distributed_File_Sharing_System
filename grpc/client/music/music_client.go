@@ -28,7 +28,7 @@ func NewMusicClient(rc *grpc.ClientConn, store file_store.Storage) *MusicClient 
 	}
 }
 
-func (client *MusicClient) UploadSong(musicPath string) (string, error) {
+func (client *MusicClient) UploadMusic(musicPath string) (string, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
@@ -38,13 +38,13 @@ func (client *MusicClient) UploadSong(musicPath string) (string, error) {
 		log.Fatal("cannot upload image: ", err)
 	}
 
-	songAudio, err := os.Open(musicPath)
+	musicAudio, err := os.Open(musicPath)
 	if err != nil {
 		log.Fatal("cannot open song: ", err)
 	}
-	pathSplitted := strings.Split(songAudio.Name(), "/")
+	pathSplitted := strings.Split(musicAudio.Name(), "/")
 	fmt.Println("audio name --")
-	defer songAudio.Close()
+	defer musicAudio.Close()
 
 	req := &proto.UploadSongRequest{
 		Data: &proto.UploadSongRequest_Title{
@@ -56,11 +56,11 @@ func (client *MusicClient) UploadSong(musicPath string) (string, error) {
 		log.Fatal("cannot send song info to server: ", err, stream.RecvMsg(nil))
 	}
 
-	readerSong := bufio.NewReader(songAudio)
-	songBuffers := make([]byte, 1024)
+	readerSong := bufio.NewReader(musicAudio)
+	musicBuffers := make([]byte, 1024)
 
 	for {
-		n, err := readerSong.Read(songBuffers)
+		n, err := readerSong.Read(musicBuffers)
 		if err == io.EOF {
 			break
 		}
@@ -69,7 +69,7 @@ func (client *MusicClient) UploadSong(musicPath string) (string, error) {
 		}
 
 		req := &proto.UploadSongRequest{
-			Data: &proto.UploadSongRequest_ChunkData{ChunkData: songBuffers[:n]},
+			Data: &proto.UploadSongRequest_ChunkData{ChunkData: musicBuffers[:n]},
 		}
 
 		err = stream.Send(req)
@@ -85,7 +85,7 @@ func (client *MusicClient) UploadSong(musicPath string) (string, error) {
 	return res.Id, err
 }
 
-func (client *MusicClient) DownloadFile(fileId string) error {
+func (client *MusicClient) DownloadMusic(fileId string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	req := &proto.DownloadSongRequest{

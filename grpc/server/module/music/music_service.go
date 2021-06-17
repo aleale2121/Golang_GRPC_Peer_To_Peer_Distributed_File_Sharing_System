@@ -1,4 +1,4 @@
-package files
+package music
 
 import (
 	"bytes"
@@ -24,21 +24,21 @@ type Info struct {
 	port  int
 	songs []string
 }
-type grpcFileServiceServer struct {
+type grpcMusicServiceServer struct {
 	store file_store.Storage
 	proto.UnimplementedSongsServiceServer
 }
 
-func (s grpcFileServiceServer) Connect(ctx context.Context, request *proto.ConnectRequest) (*proto.ConnectResponse, error) {
+func (s grpcMusicServiceServer) Connect(ctx context.Context, request *proto.ConnectRequest) (*proto.ConnectResponse, error) {
 	songs = append(songs, *ConvertProtoToSong(request.Info))
 	return &proto.ConnectResponse{}, nil
 }
-func NewGrpcFileServer(store file_store.Storage) proto.SongsServiceServer {
-	return &grpcFileServiceServer{
+func NewGrpcMusicServer(store file_store.Storage) proto.SongsServiceServer {
+	return &grpcMusicServiceServer{
 		store: store,
 	}
 }
-func (s grpcFileServiceServer) UploadSong(stream proto.SongsService_UploadSongServer) error {
+func (s grpcMusicServiceServer) UploadSong(stream proto.SongsService_UploadSongServer) error {
 	req, err := stream.Recv()
 	if err != nil {
 		return status.Errorf(codes.Unknown, "cannot receive image info")
@@ -73,10 +73,10 @@ func (s grpcFileServiceServer) UploadSong(stream proto.SongsService_UploadSongSe
 
 	}
 	mime := mimetype.Detect(buffer.Bytes())
-	//if !mimetype.EqualsAny(mime.String(),"image/jpeg","image/pjpeg",
-	//	"image/png", "image/tiff","image/x-tiff","image/vnd.wap.wbmp"){
-	//	return status.Errorf(codes.InvalidArgument, "the cover image you upload is not image")
-	//}
+	if !mimetype.EqualsAny(mime.String(), "image/jpeg", "image/pjpeg",
+		"image/png", "image/tiff", "image/x-tiff", "image/vnd.wap.wbmp") {
+		return status.Errorf(codes.InvalidArgument, "the cover image you upload is not image")
+	}
 
 	songId := title + mime.Extension()
 	err = s.saveFile(songId, "audio", buffer)
@@ -96,7 +96,7 @@ func (s grpcFileServiceServer) UploadSong(stream proto.SongsService_UploadSongSe
 	return nil
 }
 
-func (s grpcFileServiceServer) GetSongsList(ctx context.Context, request *proto.GetSongsRequest) (*proto.GetSongsResponse, error) {
+func (s grpcMusicServiceServer) GetSongsList(ctx context.Context, request *proto.GetSongsRequest) (*proto.GetSongsResponse, error) {
 	songsInfo := make([]*proto.SongData, 0)
 	for _, sg := range songs {
 		songsInfo = append(songsInfo, ConvertToProtoSong(&sg))
@@ -104,7 +104,7 @@ func (s grpcFileServiceServer) GetSongsList(ctx context.Context, request *proto.
 	return &proto.GetSongsResponse{Songs: songsInfo}, nil
 }
 
-func (s grpcFileServiceServer) DownloadSong(request *proto.DownloadSongRequest, server proto.SongsService_DownloadSongServer) error {
+func (s grpcMusicServiceServer) DownloadSong(request *proto.DownloadSongRequest, server proto.SongsService_DownloadSongServer) error {
 	wd, _ := os.Getwd()
 	fp := filepath.Join(wd, "assets", "audio", request.SongId)
 
@@ -113,7 +113,6 @@ func (s grpcFileServiceServer) DownloadSong(request *proto.DownloadSongRequest, 
 		log.Fatal("cannot open coverImage: ", err)
 	}
 	defer fileX.Close()
-	fmt.Println("------fileX opened---", fileX.Name())
 	buff := make([]byte, 1024)
 	for {
 		bytesRead, err := fileX.Read(buff)
@@ -170,7 +169,7 @@ func logError(err error) error {
 	return err
 }
 
-func (s *grpcFileServiceServer) saveFile(id, path string, buffer bytes.Buffer) error {
+func (s *grpcMusicServiceServer) saveFile(id, path string, buffer bytes.Buffer) error {
 	fp := filepath.Join("assets", path, id)
 	err := s.store.SaveChunk(fp, buffer)
 	if err != nil {

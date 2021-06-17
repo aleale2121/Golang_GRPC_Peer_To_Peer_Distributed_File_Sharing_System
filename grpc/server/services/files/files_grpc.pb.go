@@ -33,7 +33,7 @@ func NewSongsServiceClient(cc grpc.ClientConnInterface) SongsServiceClient {
 
 func (c *songsServiceClient) Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*ConnectResponse, error) {
 	out := new(ConnectResponse)
-	err := c.cc.Invoke(ctx, "/files.SongsService/Connect", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/music.SongsService/Connect", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (c *songsServiceClient) Connect(ctx context.Context, in *ConnectRequest, op
 }
 
 func (c *songsServiceClient) UploadSong(ctx context.Context, opts ...grpc.CallOption) (SongsService_UploadSongClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_SongsService_serviceDesc.Streams[0], "/files.SongsService/UploadSong", opts...)
+	stream, err := c.cc.NewStream(ctx, &_SongsService_serviceDesc.Streams[0], "/music.SongsService/UploadMusic", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (x *songsServiceUploadSongClient) CloseAndRecv() (*UploadSongResponse, erro
 
 func (c *songsServiceClient) GetSongsList(ctx context.Context, in *GetSongsRequest, opts ...grpc.CallOption) (*GetSongsResponse, error) {
 	out := new(GetSongsResponse)
-	err := c.cc.Invoke(ctx, "/files.SongsService/GetSongsList", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/music.SongsService/GetSongsList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (c *songsServiceClient) GetSongsList(ctx context.Context, in *GetSongsReque
 }
 
 func (c *songsServiceClient) DownloadSong(ctx context.Context, in *DownloadSongRequest, opts ...grpc.CallOption) (SongsService_DownloadSongClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_SongsService_serviceDesc.Streams[1], "/files.SongsService/DownloadSong", opts...)
+	stream, err := c.cc.NewStream(ctx, &_SongsService_serviceDesc.Streams[1], "/music.SongsService/DownloadSong", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (*UnimplementedSongsServiceServer) Connect(context.Context, *ConnectRequest
 	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
 func (*UnimplementedSongsServiceServer) UploadSong(SongsService_UploadSongServer) error {
-	return status.Errorf(codes.Unimplemented, "method UploadSong not implemented")
+	return status.Errorf(codes.Unimplemented, "method UploadMusic not implemented")
 }
 func (*UnimplementedSongsServiceServer) GetSongsList(context.Context, *GetSongsRequest) (*GetSongsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSongsList not implemented")
@@ -158,7 +158,7 @@ func _SongsService_Connect_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/files.SongsService/Connect",
+		FullMethod: "/music.SongsService/Connect",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SongsServiceServer).Connect(ctx, req.(*ConnectRequest))
@@ -202,7 +202,7 @@ func _SongsService_GetSongsList_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/files.SongsService/GetSongsList",
+		FullMethod: "/music.SongsService/GetSongsList",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SongsServiceServer).GetSongsList(ctx, req.(*GetSongsRequest))
@@ -232,7 +232,7 @@ func (x *songsServiceDownloadSongServer) Send(m *DownloadSongResponse) error {
 }
 
 var _SongsService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "files.SongsService",
+	ServiceName: "music.SongsService",
 	HandlerType: (*SongsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -246,7 +246,7 @@ var _SongsService_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "UploadSong",
+			StreamName:    "UploadMusic",
 			Handler:       _SongsService_UploadSong_Handler,
 			ClientStreams: true,
 		},
@@ -256,5 +256,5 @@ var _SongsService_serviceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "files.proto",
+	Metadata: "music.proto",
 }

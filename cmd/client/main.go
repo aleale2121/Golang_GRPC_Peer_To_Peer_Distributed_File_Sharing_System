@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/aleale2121/DSP_LAB/Music_Service/constant/model"
 	connClientServices "github.com/aleale2121/DSP_LAB/Music_Service/grpc/client/connection"
-	"github.com/aleale2121/DSP_LAB/Music_Service/grpc/server/module/files"
+	"github.com/aleale2121/DSP_LAB/Music_Service/grpc/server/module/music"
 	connectionProto "github.com/aleale2121/DSP_LAB/Music_Service/grpc/server/services/connect"
 	fileProto "github.com/aleale2121/DSP_LAB/Music_Service/grpc/server/services/files"
 	"github.com/aleale2121/DSP_LAB/Music_Service/storage/file_store"
@@ -45,7 +45,7 @@ func RunServer() error {
 		log.Fatalf("cannot create storage: %v", err)
 	}
 
-	fs := files.NewGrpcFileServer(*store)
+	fs := music.NewGrpcMusicServer(*store)
 	gs := grpc.NewServer()
 	serverConn, err := CreateConnectionWithServer()
 	if err != nil {
