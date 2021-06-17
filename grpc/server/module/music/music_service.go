@@ -119,7 +119,7 @@ func (s grpcMusicServiceServer) DownloadSong(request *proto.DownloadSongRequest,
 	for {
 		bytesRead, err := fileX.Read(buff)
 		if err == io.EOF {
-			log.Println("End of file")
+			//log.Println("End of file")
 			break
 		} else if err != nil {
 			log.Println("error--", err)

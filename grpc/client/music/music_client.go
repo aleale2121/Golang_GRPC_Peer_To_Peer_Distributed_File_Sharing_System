@@ -105,7 +105,7 @@ func (client *MusicsClient) DownloadMusic(fileId string) error {
 
 		if err == io.EOF {
 			// we've reached the end of stream
-			log.Println("recived all chunks")
+			//log.Println("recived all chunks")
 			break
 		}
 		if err != nil {
