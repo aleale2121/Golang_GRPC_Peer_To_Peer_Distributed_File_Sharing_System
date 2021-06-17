@@ -44,13 +44,12 @@ func (client *MusicsClient) UploadMusic(musicPath string) (string, error) {
 		log.Println("cannot open song: ", err)
 		return "", err
 	}
-	pathSplitted := strings.Split(musicAudio.Name(), "/")
-	fmt.Println("audio name --")
+	pathSplited := strings.Split(musicAudio.Name(), "/")
 	defer musicAudio.Close()
 
 	req := &proto.UploadSongRequest{
 		Data: &proto.UploadSongRequest_Title{
-			Title: pathSplitted[len(pathSplitted)-1]},
+			Title: pathSplited[len(pathSplited)-1]},
 	}
 
 	err = stream.Send(req)
@@ -76,12 +75,14 @@ func (client *MusicsClient) UploadMusic(musicPath string) (string, error) {
 
 		err = stream.Send(req)
 		if err != nil {
-			log.Fatal("cannot send song chunk to server: ", err, stream.RecvMsg(nil))
+			log.Println("cannot send song chunk to server: ", err, stream.RecvMsg(nil))
+			return "", err
 		}
 	}
 	res, err := stream.CloseAndRecv()
 	if err != nil {
-		log.Fatal("cannot receive response: ", err)
+		fmt.Println(err)
+		return "", err
 	}
 
 	return res.Id, err

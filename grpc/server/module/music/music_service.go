@@ -77,7 +77,7 @@ func (s grpcMusicServiceServer) UploadSong(stream proto.SongsService_UploadSongS
 	if !mimetype.EqualsAny(mime.String(), "audio/basic", "audio/L24",
 		"audio/mid", "audio/mpeg", "audio/mp4", "audio/x-aiff", "audio/x-mpegurl",
 		"audio/ogg", "audio/vorbis", "audio/vnd.wav", "text/plain") {
-		return status.Errorf(codes.InvalidArgument, "the cover image you upload is not image")
+		return status.Errorf(codes.InvalidArgument, "the file you upload is not music")
 	}
 
 	songId := title
