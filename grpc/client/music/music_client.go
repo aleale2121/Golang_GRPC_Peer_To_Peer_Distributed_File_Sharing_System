@@ -35,12 +35,14 @@ func (client *MusicsClient) UploadMusic(musicPath string) (string, error) {
 
 	stream, err := client.service.UploadSong(ctx)
 	if err != nil {
-		log.Fatal("cannot upload image: ", err)
+		log.Println("cannot upload image: ", err)
+		return "", err
 	}
 
 	musicAudio, err := os.Open(musicPath)
 	if err != nil {
-		log.Fatal("cannot open song: ", err)
+		log.Println("cannot open song: ", err)
+		return "", err
 	}
 	pathSplitted := strings.Split(musicAudio.Name(), "/")
 	fmt.Println("audio name --")

@@ -222,8 +222,6 @@ func Download(data *protos.SongData, title string) {
 	musicClient := music.NewMusicClient(cc2, *store)
 	err = musicClient.DownloadMusic(title)
 	if err != nil {
-		fmt.Println("Error Occurred while downloading music")
-		fmt.Println(err)
 		return
 	}
 	fmt.Println("Music Downloaded")
@@ -249,8 +247,7 @@ func Send(data *protos.SongData, title string) {
 	musicClient := music.NewMusicClient(cc2, *store)
 	_, err = musicClient.UploadMusic(title)
 	if err != nil {
-		fmt.Println("Error Occurred while downloading music")
-		fmt.Println(err)
+
 		return
 	}
 	fmt.Println("Music Uploaded")
