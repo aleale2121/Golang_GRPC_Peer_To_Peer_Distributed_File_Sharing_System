@@ -95,6 +95,7 @@ func (client *MusicClient) DownloadFile(fileId string) error {
 	if err != nil {
 		log.Fatal("cannot download image: ", err)
 	}
+	defer stream.CloseSend()
 	buffer := bytes.Buffer{}
 	for {
 		msg, err := stream.Recv()
@@ -125,7 +126,7 @@ func (client *MusicClient) DownloadFile(fileId string) error {
 
 func (client *MusicClient) saveFile(id, path string, buffer bytes.Buffer) error {
 
-	fp := filepath.Join("assets", "audio", path, id)
+	fp := filepath.Join("assets", path, id)
 	err := client.store.SaveChunk(fp, buffer)
 	if err != nil {
 		return err

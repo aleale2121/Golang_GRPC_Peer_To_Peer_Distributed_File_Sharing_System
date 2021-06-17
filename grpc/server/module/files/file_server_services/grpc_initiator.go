@@ -6,6 +6,7 @@ import (
 	"fmt"
 	proto "github.com/aleale2121/DSP_LAB/Music_Service/grpc/server/services/files"
 	"github.com/aleale2121/DSP_LAB/Music_Service/storage/file_store"
+	"github.com/gabriel-vasile/mimetype"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"io"
@@ -71,13 +72,13 @@ func (s grpcFileServiceServer) UploadSong(stream proto.SongsService_UploadSongSe
 		}
 
 	}
-	//mime := mimetype.Detect(buffer.Bytes())
+	mime := mimetype.Detect(buffer.Bytes())
 	//if !mimetype.EqualsAny(mime.String(),"image/jpeg","image/pjpeg",
 	//	"image/png", "image/tiff","image/x-tiff","image/vnd.wap.wbmp"){
 	//	return status.Errorf(codes.InvalidArgument, "the cover image you upload is not image")
 	//}
 
-	songId := title
+	songId := title + mime.Extension()
 	err = s.saveFile(songId, "audio", buffer)
 	if err != nil {
 		return fmt.Errorf("cannot write song cover to file: %w", err)
@@ -107,20 +108,21 @@ func (s grpcFileServiceServer) DownloadSong(request *proto.DownloadSongRequest, 
 	wd, _ := os.Getwd()
 	fp := filepath.Join(wd, "assets", "audio", request.SongId)
 
-	file, err := os.Open(fp)
+	fileX, err := os.Open(fp)
 	if err != nil {
 		log.Fatal("cannot open coverImage: ", err)
 	}
-	defer file.Close()
-
+	defer fileX.Close()
+	fmt.Println("------fileX opened---", fileX.Name())
 	buff := make([]byte, 1024)
-
 	for {
-		bytesRead, err := file.Read(buff)
-		if err != nil {
-			if err != io.EOF {
-				break
-			}
+		bytesRead, err := fileX.Read(buff)
+		if err == io.EOF {
+			log.Println("End of file")
+			break
+		} else if err != nil {
+			log.Println("error--", err)
+			break
 		}
 		resp := &proto.DownloadSongResponse{
 			ChunkData: buff[:bytesRead],
