@@ -16,19 +16,19 @@ import (
 	"time"
 )
 
-type MusicClient struct {
+type MusicsClient struct {
 	service proto.SongsServiceClient
 	store   file_store.Storage
 }
 
-func NewMusicClient(rc *grpc.ClientConn, store file_store.Storage) *MusicClient {
-	return &MusicClient{
+func NewMusicClient(rc *grpc.ClientConn, store file_store.Storage) *MusicsClient {
+	return &MusicsClient{
 		service: proto.NewSongsServiceClient(rc),
 		store:   store,
 	}
 }
 
-func (client *MusicClient) UploadMusic(musicPath string) (string, error) {
+func (client *MusicsClient) UploadMusic(musicPath string) (string, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
@@ -85,7 +85,7 @@ func (client *MusicClient) UploadMusic(musicPath string) (string, error) {
 	return res.Id, err
 }
 
-func (client *MusicClient) DownloadMusic(fileId string) error {
+func (client *MusicsClient) DownloadMusic(fileId string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 	req := &proto.DownloadSongRequest{
@@ -124,7 +124,7 @@ func (client *MusicClient) DownloadMusic(fileId string) error {
 	return nil
 }
 
-func (client *MusicClient) saveFile(id, path string, buffer bytes.Buffer) error {
+func (client *MusicsClient) saveFile(id, path string, buffer bytes.Buffer) error {
 
 	fp := filepath.Join("assets", path, id)
 	err := client.store.SaveChunk(fp, buffer)

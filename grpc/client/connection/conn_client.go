@@ -21,7 +21,7 @@ type liveClient struct {
 	client      protos.LiveConnectionClient
 	conn        *grpc.ClientConn
 	connData    model.Info
-	musicClient *music.MusicClient
+	musicClient *music.MusicsClient
 }
 
 var (

@@ -72,13 +72,15 @@ func (s grpcMusicServiceServer) UploadSong(stream proto.SongsService_UploadSongS
 		}
 
 	}
+
 	mime := mimetype.Detect(buffer.Bytes())
-	if !mimetype.EqualsAny(mime.String(), "image/jpeg", "image/pjpeg",
-		"image/png", "image/tiff", "image/x-tiff", "image/vnd.wap.wbmp") {
+	if !mimetype.EqualsAny(mime.String(), "audio/basic", "audio/L24",
+		"audio/mid", "audio/mpeg", "audio/mp4", "audio/x-aiff", "audio/x-mpegurl",
+		"audio/ogg", "audio/vorbis", "audio/vnd.wav", "text/plain") {
 		return status.Errorf(codes.InvalidArgument, "the cover image you upload is not image")
 	}
 
-	songId := title + mime.Extension()
+	songId := title
 	err = s.saveFile(songId, "audio", buffer)
 	if err != nil {
 		return fmt.Errorf("cannot write song cover to file: %w", err)
